@@ -2,6 +2,7 @@ package graphtutorial;
 
 import com.microsoft.graph.models.Message;
 import com.microsoft.graph.models.User;
+import com.microsoft.graph.requests.ContactCollectionPage;
 import com.microsoft.graph.requests.MessageCollectionPage;
 
 import java.io.IOException;
@@ -11,7 +12,8 @@ import java.time.format.FormatStyle;
 import java.util.*;
 
 public class App {
-        static final Properties oAuthProperties = new Properties();
+    static final Properties oAuthProperties = new Properties();
+
     public static void main(String[] args) throws Exception {
         System.out.println("Java Graph Tutorial");
         System.out.println();
@@ -41,6 +43,7 @@ public class App {
             System.out.println("3. Send mail");
             System.out.println("4. Check calendar's events");
             System.out.println("5. Create and send event");
+            System.out.println("6. Get contacts");
 
             try {
                 choice = input.nextInt();
@@ -68,6 +71,9 @@ public class App {
                     break;
                 case 5:
                     createAndSendEvent();
+                    break;
+                case 6:
+                    getContacts();
                     break;
                 default:
                     System.out.println("Invalid choice");
@@ -191,4 +197,15 @@ public class App {
             System.out.println(e.getMessage());
         }
     }
+
+    private static void getContacts() {
+        try {
+            List<ContactCollectionPage> contacts = Graph.getContacts();
+            System.out.println("Contacts: " + contacts);
+        } catch (Exception e) {
+            System.out.println("Error getting contacts");
+            System.out.println(e.getMessage());
+        }
+    }
+
 }

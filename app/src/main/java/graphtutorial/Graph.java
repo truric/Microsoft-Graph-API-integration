@@ -1,24 +1,29 @@
 package graphtutorial;
 
 import com.azure.core.credential.AccessToken;
+import com.azure.core.credential.TokenCredential;
 import com.azure.core.credential.TokenRequestContext;
+import com.azure.identity.DefaultAzureCredentialBuilder;
 import com.azure.identity.DeviceCodeCredential;
 import com.azure.identity.DeviceCodeCredentialBuilder;
 import com.azure.identity.DeviceCodeInfo;
 import com.microsoft.graph.authentication.TokenCredentialAuthProvider;
 import com.microsoft.graph.models.*;
+import com.microsoft.graph.requests.ContactCollectionPage;
 import com.microsoft.graph.requests.GraphServiceClient;
 import com.microsoft.graph.requests.MessageCollectionPage;
 import okhttp3.Request;
 
-import java.util.*;
 import java.util.List;
+import java.util.*;
 import java.util.function.Consumer;
 
 public class Graph {
     private static Properties _properties;
     private static DeviceCodeCredential _deviceCodeCredential;
     private static GraphServiceClient<Request> _userClient;
+
+
 
     public static void initializeGraphForUserAuth(Properties properties, Consumer<DeviceCodeInfo> challenge) throws Exception {
         // Ensure properties isn't null
@@ -187,5 +192,23 @@ public class Graph {
             System.out.println(event.subject + " (" + event.start.dateTime + " - " + event.end.dateTime + ")");
         }
     }
+
+    public static List<ContactCollectionPage> getContacts() {
+        // Get an instance of TokenCredential using DefaultAzureCredential
+        TokenCredential tokenCredential = new DefaultAzureCredentialBuilder().build();
+
+        TokenCredentialAuthProvider authProvider = new TokenCredentialAuthProvider(tokenCredential);
+        GraphServiceClient<Request> graphClient = GraphServiceClient.builder()
+                .authenticationProvider(authProvider)
+                .buildClient();
+
+        ContactCollectionPage contacts = graphClient.me().contacts()
+                .buildRequest()
+                .get();
+
+        return Collections.singletonList(contacts);
+    }
+
+
 
 }

@@ -24,6 +24,7 @@ dependencies {
     // msgraph-sdk-java
     implementation 'com.azure:azure-sdk-bom:1.2.9'
     implementation 'com.azure:azure-identity:1.8.1'
+    implementation 'com.microsoft.graph:microsoft-graph:5.49.0'
 
     // Use JUnit test framework.
     testImplementation 'junit:junit:4.13.2'
@@ -47,6 +48,9 @@ dependencies {
 
 //    implementation 'com.microsoft.azure:msal4j:1.15.0'
     implementation 'com.nimbusds:nimbus-jose-jwt:9.1'
+    implementation 'com.microsoft.graph:microsoft-graph-core:2.0.17'
+    implementation 'com.microsoft.graph:microsoft-graph:5.52.0'
+    implementation 'com.microsoft.graph:microsoft-graph:3.8.0'
 
 }
 
