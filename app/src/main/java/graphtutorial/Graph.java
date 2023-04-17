@@ -11,10 +11,8 @@ import com.microsoft.graph.requests.GraphServiceClient;
 import com.microsoft.graph.requests.MessageCollectionPage;
 import okhttp3.Request;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.*;
 import java.util.List;
-import java.util.Properties;
 import java.util.function.Consumer;
 
 public class Graph {
@@ -61,6 +59,7 @@ public class Graph {
         context.addScopes(graphUserScopes);
 
         final AccessToken token = _deviceCodeCredential.getToken(context).block();
+        assert token != null;
         return token.getToken();
     }
 
@@ -168,7 +167,25 @@ public class Graph {
                 .post(event);
     }
 
-    public static void makeGraphCall() {
-        // INSERT YOUR CODE HERE
+    public static void checkEvents() {
+        List<Event> events = Objects.requireNonNull(
+                        _userClient.me().calendar().events()
+                                .buildRequest()
+                                .select("subject,start,end")
+                                .get())
+                .getCurrentPage();
+
+        System.out.println("Displaying list of calendar's events of "
+                + Objects.requireNonNull(_userClient.me()
+                .buildRequest()
+                .select("mail")
+                .get()).mail + "\n");
+
+        for (Event event : events) {
+            assert event.start != null;
+            assert event.end != null;
+            System.out.println(event.subject + " (" + event.start.dateTime + " - " + event.end.dateTime + ")");
+        }
     }
+
 }

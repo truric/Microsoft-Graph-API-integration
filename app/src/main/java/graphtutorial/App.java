@@ -25,7 +25,7 @@ public class App {
             return;
         }
 
-        initializeGraph(oAuthProperties);
+        initializeGraph();
 
         greetUser();
 
@@ -34,43 +34,37 @@ public class App {
         int choice = -1;
 
         while (choice != 0) {
-            System.out.println("Please choose one of the following options:");
+            System.out.println("\nPlease choose one of the following options:");
             System.out.println("0. Exit");
             System.out.println("1. Display access token");
             System.out.println("2. List my inbox");
             System.out.println("3. Send mail");
-            System.out.println("4. Make a Graph call");
+            System.out.println("4. Check calendar's events");
             System.out.println("5. Create and send event");
 
             try {
                 choice = input.nextInt();
             } catch (InputMismatchException ex) {
-                // Skip over non-integer input
+                System.out.println(ex.getMessage());
             }
 
             input.nextLine();
 
-            // Process user choice
             switch(choice) {
                 case 0:
-                    // Exit the program
                     System.out.println("Goodbye...");
                     break;
                 case 1:
-                    // Display access token
                     displayAccessToken();
                     break;
                 case 2:
-                    // List emails from user's inbox
                     listInbox();
                     break;
                 case 3:
-                    // Send an email message
                     sendMail();
                     break;
                 case 4:
-                    // Run any Graph code
-                    makeGraphCall();
+                    checkEvents();
                     break;
                 case 5:
                     createAndSendEvent();
@@ -83,9 +77,9 @@ public class App {
         input.close();
     }
 
-    private static void initializeGraph(Properties properties) {
+    private static void initializeGraph() {
         try {
-            Graph.initializeGraphForUserAuth(properties,
+            Graph.initializeGraphForUserAuth(App.oAuthProperties,
                     challenge -> System.out.println(challenge.getMessage()));
         } catch (Exception e)
         {
@@ -125,15 +119,18 @@ public class App {
             // Output each message's details
             for (Message message: messages.getCurrentPage()) {
                 System.out.println("Message: " + message.subject);
+                assert message.from != null;
+                assert message.from.emailAddress != null;
                 System.out.println("  From: " + message.from.emailAddress.name);
-                System.out.println("  Status: " + (message.isRead ? "Read" : "Unread"));
+                System.out.println("  Status: " + (Boolean.TRUE.equals(message.isRead) ? "Read" : "Unread"));
+                assert message.receivedDateTime != null;
                 System.out.println("  Received: " + message.receivedDateTime
                         // Values are returned in UTC, convert to local time zone
                         .atZoneSameInstant(ZoneId.systemDefault()).toLocalDateTime()
                         .format(DateTimeFormatter.ofLocalizedDateTime(FormatStyle.SHORT)));
             }
 
-            final Boolean moreMessagesAvailable = messages.getNextPage() != null;
+            final boolean moreMessagesAvailable = messages.getNextPage() != null;
             System.out.println("\nMore messages available? " + moreMessagesAvailable);
         } catch (Exception e) {
             System.out.println("Error getting inbox");
@@ -145,8 +142,10 @@ public class App {
         try {
             // Send mail to the signed-in user
             // Get the user for their email address
-//            final User user = Graph.getUser();
-//            final String email = user.mail == null ? user.userPrincipalName : user.mail;
+
+            // Get own user email:
+            // final User user = Graph.getUser();
+            // final String email = user.mail == null ? user.userPrincipalName : user.mail;
 
             Scanner scan = new Scanner(System.in);
             System.out.print("E-mail: ");
@@ -167,7 +166,6 @@ public class App {
     }
 
     private static void createAndSendEvent() throws Exception {
-        Properties property = new Properties();
         String subject = "Subject e-mail goes here";
         String body = "Does noon work for you?";
         String startDateTime = "2022-04-27T12:30:00";
@@ -185,9 +183,9 @@ public class App {
         }
     }
 
-    private static void makeGraphCall() {
+    private static void checkEvents() {
         try {
-            Graph.makeGraphCall();
+            Graph.checkEvents();
         } catch (Exception e) {
             System.out.println("Error making Graph call");
             System.out.println(e.getMessage());
