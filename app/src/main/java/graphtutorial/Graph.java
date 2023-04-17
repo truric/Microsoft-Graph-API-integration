@@ -1,27 +1,21 @@
 package graphtutorial;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
-import java.util.function.Consumer;
-
 import com.azure.core.credential.AccessToken;
 import com.azure.core.credential.TokenRequestContext;
 import com.azure.identity.DeviceCodeCredential;
 import com.azure.identity.DeviceCodeCredentialBuilder;
 import com.azure.identity.DeviceCodeInfo;
 import com.microsoft.graph.authentication.TokenCredentialAuthProvider;
-import com.microsoft.graph.models.BodyType;
-import com.microsoft.graph.models.EmailAddress;
-import com.microsoft.graph.models.ItemBody;
-import com.microsoft.graph.models.Message;
-import com.microsoft.graph.models.Recipient;
-import com.microsoft.graph.models.User;
-import com.microsoft.graph.models.UserSendMailParameterSet;
+import com.microsoft.graph.models.*;
 import com.microsoft.graph.requests.GraphServiceClient;
 import com.microsoft.graph.requests.MessageCollectionPage;
-
 import okhttp3.Request;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Properties;
+import java.util.function.Consumer;
 
 public class Graph {
     private static Properties _properties;
@@ -123,6 +117,55 @@ public class Graph {
                         .build())
                 .buildRequest()
                 .post();
+    }
+
+    public static void createEvent(String subject, String body, String startDateTime, String endDateTime,
+                                   String timeZone, String locationDisplayName, List<String> attendeeEmailAddresses) throws Exception {
+        // Ensure client isn't null
+        if (_userClient == null) {
+            throw new Exception("Graph has not been initialized for user auth");
+        }
+
+        // Create a new event
+        final Event event = new Event();
+        event.subject = subject;
+        event.body = new ItemBody();
+        event.body.content = body;
+        event.body.contentType = BodyType.TEXT;
+
+        // Set start and end times
+        final DateTimeTimeZone start = new DateTimeTimeZone();
+        start.dateTime = startDateTime;
+        start.timeZone = timeZone;
+        event.start = start;
+
+        final DateTimeTimeZone end = new DateTimeTimeZone();
+        end.dateTime = endDateTime;
+        end.timeZone = timeZone;
+        event.end = end;
+
+        // Set location
+        final Location location = new Location();
+        location.displayName = locationDisplayName;
+        event.location = location;
+
+        // Set attendees
+        final List<Attendee> attendees = new ArrayList<>();
+        for (String attendeeEmailAddress : attendeeEmailAddresses) {
+            final Attendee attendee = new Attendee();
+            final EmailAddress attendeeEmailAddressObj = new EmailAddress();
+            attendeeEmailAddressObj.address = attendeeEmailAddress;
+            attendeeEmailAddressObj.name = attendeeEmailAddress;
+            attendee.emailAddress = attendeeEmailAddressObj;
+            attendee.type = AttendeeType.REQUIRED;
+            attendees.add(attendee);
+        }
+        event.attendees = attendees;
+
+        // Create the event
+        _userClient.me().events()
+                .buildRequest()
+                .post(event);
     }
 
     public static void makeGraphCall() {

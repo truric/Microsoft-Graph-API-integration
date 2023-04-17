@@ -1,23 +1,22 @@
 package graphtutorial;
 
-import java.io.IOException;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
-import java.time.format.FormatStyle;
-import java.util.InputMismatchException;
-import java.util.Properties;
-import java.util.Scanner;
-
 import com.microsoft.graph.models.Message;
 import com.microsoft.graph.models.User;
 import com.microsoft.graph.requests.MessageCollectionPage;
 
+import java.io.IOException;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.FormatStyle;
+import java.util.*;
+
 public class App {
-    public static void main(String[] args) {
+        static final Properties oAuthProperties = new Properties();
+    public static void main(String[] args) throws Exception {
         System.out.println("Java Graph Tutorial");
         System.out.println();
 
-        final Properties oAuthProperties = new Properties();
+
         try {
             oAuthProperties.load(App.class.getResourceAsStream("oAuth.properties"));
         } catch (IOException e) {
@@ -41,6 +40,7 @@ public class App {
             System.out.println("2. List my inbox");
             System.out.println("3. Send mail");
             System.out.println("4. Make a Graph call");
+            System.out.println("5. Create and send event");
 
             try {
                 choice = input.nextInt();
@@ -71,6 +71,9 @@ public class App {
                 case 4:
                     // Run any Graph code
                     makeGraphCall();
+                    break;
+                case 5:
+                    createAndSendEvent();
                     break;
                 default:
                     System.out.println("Invalid choice");
@@ -142,14 +145,43 @@ public class App {
         try {
             // Send mail to the signed-in user
             // Get the user for their email address
-            final User user = Graph.getUser();
-            final String email = user.mail == null ? user.userPrincipalName : user.mail;
+//            final User user = Graph.getUser();
+//            final String email = user.mail == null ? user.userPrincipalName : user.mail;
 
-            Graph.sendMail("Testing Microsoft Graph", "Hello world!", email);
-            System.out.println("\nMail sent.");
+            Scanner scan = new Scanner(System.in);
+            System.out.print("E-mail: ");
+            final String email = scan.nextLine();
+
+            System.out.print("Subject: ");
+            final String emailSubject = scan.nextLine();
+
+            System.out.print("Body: ");
+            final String emailBody = scan.nextLine();
+
+            Graph.sendMail(emailSubject, emailBody, email);
+            System.out.println("\nMail sent to "+ email);
         } catch (Exception e) {
             System.out.println("Error sending mail");
             System.out.println(e.getMessage());
+        }
+    }
+
+    private static void createAndSendEvent() throws Exception {
+        Properties property = new Properties();
+        String subject = "Subject e-mail goes here";
+        String body = "Does noon work for you?";
+        String startDateTime = "2022-04-27T12:30:00";
+        String endDateTime = "2022-04-29T14:00:00";
+        String timeZone = "Pacific Standard Time";
+        String locationDisplayName = "Location display name goes here";
+        List<String> attendeeEmailAddresses = new ArrayList<>();
+        attendeeEmailAddresses.add(oAuthProperties.getProperty("app.email"));
+
+        try{
+            Graph.createEvent(subject, body, startDateTime, endDateTime, timeZone, locationDisplayName, attendeeEmailAddresses);
+            System.out.println("Event successfully created, email sent to: " + attendeeEmailAddresses);
+        }catch (Exception e) {
+            throw new Exception("Couldn't create new Event");
         }
     }
 
