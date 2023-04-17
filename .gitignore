@@ -5,4 +5,4 @@
 build
 
 #oAuth.properties
-src/main/resources
+app/src/main/resources
