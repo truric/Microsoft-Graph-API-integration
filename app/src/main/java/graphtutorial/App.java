@@ -2,7 +2,6 @@ package graphtutorial;
 
 import com.microsoft.graph.models.Message;
 import com.microsoft.graph.models.User;
-import com.microsoft.graph.requests.ContactCollectionPage;
 import com.microsoft.graph.requests.MessageCollectionPage;
 
 import java.io.IOException;
@@ -47,6 +46,8 @@ public class App {
             System.out.println("5. Create and send event");
             System.out.println("6. Get contacts");
             System.out.println("7. Create contact");
+            System.out.println("8. Update contact");
+            System.out.println("9. Delete contact");
 
             try {
                 choice = input.nextInt();
@@ -80,6 +81,12 @@ public class App {
                     break;
                 case 7:
                     createContact();
+                    break;
+                case 8:
+                    updateContact();
+                    break;
+                case 9:
+                    deleteContact();
                     break;
                 default:
                     System.out.println("Invalid choice");
@@ -217,16 +224,46 @@ public class App {
 
     private static void createContact() {
             Scanner scan = new Scanner(System.in);
-            System.out.print("E-mail: ");
+            System.out.print("Name: ");
             final String givenName = scan.nextLine();
 
-            System.out.print("Subject: ");
+            System.out.print("Surname: ");
             final String surName = scan.nextLine();
 
-            System.out.print("Body: ");
+            System.out.print("E-mail: ");
             final String email = scan.nextLine();
         try {
             Graph.createContact(givenName, surName, email);
+        } catch (Exception e) {
+            System.out.println("Error making Graph call");
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private static void updateContact() {
+            Scanner scan = new Scanner(System.in);
+            System.out.print("Contact ID: ");
+            final String contactId = scan.nextLine();
+
+            System.out.print("Name: ");
+            final String givenName = scan.nextLine();
+
+            System.out.print("Surname: ");
+            final String surName = scan.nextLine();
+
+            System.out.print("E-mail: ");
+            final String email = scan.nextLine();
+        try {
+            Graph.updateContact(contactId, givenName, surName, email);
+        } catch (Exception e) {
+            System.out.println("Error making Graph call");
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private static void deleteContact() {
+        try {
+            Graph.deleteContact("AAMkADkwNDBiNzFmLTY1YjgtNGIyMC05YzUxLTIyYjRjYThjNDg3YwBGAAAAAAAthmT8UPPsRazGiqVWt7b0BwBFVRDfo2MVQpKB6nkDFQxEAAAAAAEOAABFVRDfo2MVQpKB6nkDFQxEAAAVo0zgAAA=");
         } catch (Exception e) {
             System.out.println("Error making Graph call");
             System.out.println(e.getMessage());

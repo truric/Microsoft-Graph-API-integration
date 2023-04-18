@@ -1,16 +1,13 @@
 package graphtutorial;
 
 import com.azure.core.credential.AccessToken;
-import com.azure.core.credential.TokenCredential;
 import com.azure.core.credential.TokenRequestContext;
-import com.azure.identity.DefaultAzureCredentialBuilder;
 import com.azure.identity.DeviceCodeCredential;
 import com.azure.identity.DeviceCodeCredentialBuilder;
 import com.azure.identity.DeviceCodeInfo;
 import com.microsoft.graph.authentication.TokenCredentialAuthProvider;
 import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.*;
-import com.microsoft.graph.requests.ContactCollectionPage;
 import com.microsoft.graph.requests.GraphServiceClient;
 import com.microsoft.graph.requests.MessageCollectionPage;
 import okhttp3.Request;
@@ -225,9 +222,16 @@ public class Graph {
                 .get()).mail + "\n");
 
         for (Contact contact : contacts) {
-            assert contact.emailAddresses != null;
-            System.out.println(contact.displayName + " (" + contact.emailAddresses.get(0).address + ")");
+            if (contact.emailAddresses != null && !contact.emailAddresses.isEmpty()) {
+                for (EmailAddress email : contact.emailAddresses) {
+                    System.out.println(contact.displayName + " (" + email.address + ")");
+                }
+            } else {
+                System.out.println(contact.displayName + " (No email found)");
+            }
         }
+
+
     }
 
     public static void createContact(String givenName, String surName, String email) {
@@ -248,5 +252,35 @@ public class Graph {
             System.out.println("Error creating contact: " + e.getMessage());
         }
     }
+
+    public static void updateContact(String contactId, String givenName, String surName, String email) {
+        try {
+            Contact existingContact = _userClient.me().contacts(contactId).buildRequest().get();
+            assert existingContact != null;
+            existingContact.givenName = givenName;
+            existingContact.surname = surName;
+            assert existingContact.emailAddresses != null;
+            existingContact.emailAddresses.get(0).address = email;
+            Contact updatedContact = _userClient.me().contacts(contactId)
+                    .buildRequest()
+                    .patch(existingContact);
+
+            assert updatedContact != null;
+            System.out.println("Contact updated successfully. Id: " + updatedContact.id);
+        } catch (GraphServiceException e) {
+            System.out.println("Error updating contact: " + e.getMessage());
+        }
+    }
+
+    public static void deleteContact(String contactId) {
+        try {
+            _userClient.me().contacts(contactId).buildRequest().delete();
+            System.out.println("Contact deleted successfully. Id: " + contactId);
+        } catch (GraphServiceException e) {
+            System.out.println("Error deleting contact: " + e.getMessage());
+        }
+    }
+
+
 
 }
