@@ -1,9 +1,10 @@
 # Ignore Gradle project-specific cache directory
 .gradle
 .idea
+app/build
 
 # Ignore Gradle build output directory
 build
 
 #oAuth.properties
-app/src/main/resources
+app/src/main/resources/graphtutorial

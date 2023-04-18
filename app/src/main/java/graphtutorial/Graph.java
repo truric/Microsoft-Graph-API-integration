@@ -8,6 +8,7 @@ import com.azure.identity.DeviceCodeCredential;
 import com.azure.identity.DeviceCodeCredentialBuilder;
 import com.azure.identity.DeviceCodeInfo;
 import com.microsoft.graph.authentication.TokenCredentialAuthProvider;
+import com.microsoft.graph.http.GraphServiceException;
 import com.microsoft.graph.models.*;
 import com.microsoft.graph.requests.ContactCollectionPage;
 import com.microsoft.graph.requests.GraphServiceClient;
@@ -193,22 +194,59 @@ public class Graph {
         }
     }
 
-    public static List<ContactCollectionPage> getContacts() {
-        // Get an instance of TokenCredential using DefaultAzureCredential
-        TokenCredential tokenCredential = new DefaultAzureCredentialBuilder().build();
+//    public static List<ContactCollectionPage> getContacts() {
+//        // Get an instance of TokenCredential using DefaultAzureCredential
+//        TokenCredential tokenCredential = new DefaultAzureCredentialBuilder().build();
+//
+//        TokenCredentialAuthProvider authProvider = new TokenCredentialAuthProvider(tokenCredential);
+//        GraphServiceClient<Request> graphClient = GraphServiceClient.builder()
+//                .authenticationProvider(authProvider)
+//                .buildClient();
+//
+//        ContactCollectionPage contacts = graphClient.me().contacts()
+//                .buildRequest()
+//                .get();
+//
+//        return Collections.singletonList(contacts);
+//    }
 
-        TokenCredentialAuthProvider authProvider = new TokenCredentialAuthProvider(tokenCredential);
-        GraphServiceClient<Request> graphClient = GraphServiceClient.builder()
-                .authenticationProvider(authProvider)
-                .buildClient();
+    public static void getContacts() {
+        List<Contact> contacts = Objects.requireNonNull(
+                        _userClient.me().contacts()
+                                .buildRequest()
+                                .select("displayName,emailAddresses")
+                                .get())
+                .getCurrentPage();
 
-        ContactCollectionPage contacts = graphClient.me().contacts()
+        System.out.println("Displaying list of contacts of "
+                + Objects.requireNonNull(_userClient.me()
                 .buildRequest()
-                .get();
+                .select("mail")
+                .get()).mail + "\n");
 
-        return Collections.singletonList(contacts);
+        for (Contact contact : contacts) {
+            assert contact.emailAddresses != null;
+            System.out.println(contact.displayName + " (" + contact.emailAddresses.get(0).address + ")");
+        }
     }
 
+    public static void createContact(String givenName, String surName, String email) {
+        Contact newContact = new Contact();
+        newContact.givenName = givenName;
+        newContact.surname = surName;
+        EmailAddress emailAddress = new EmailAddress();
+        emailAddress.address = email;
+        newContact.emailAddresses = List.of(new EmailAddress[]{emailAddress});
 
+        try {
+            Contact contact = _userClient.me().contacts()
+                    .buildRequest()
+                    .post(newContact);
+
+            System.out.println("Contact created successfully. Id: " + contact.id);
+        } catch (GraphServiceException e) {
+            System.out.println("Error creating contact: " + e.getMessage());
+        }
+    }
 
 }

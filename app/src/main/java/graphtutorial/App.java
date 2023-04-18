@@ -15,9 +15,6 @@ public class App {
     static final Properties oAuthProperties = new Properties();
 
     public static void main(String[] args) throws Exception {
-        System.out.println("Java Graph Tutorial");
-        System.out.println();
-
 
         try {
             oAuthProperties.load(App.class.getResourceAsStream("oAuth.properties"));
@@ -28,8 +25,13 @@ public class App {
         }
 
         initializeGraph();
-
         greetUser();
+        graphMenu();
+    }
+
+    private static void graphMenu() throws Exception {
+        System.out.println("Microsoft Graph API");
+        System.out.println();
 
         Scanner input = new Scanner(System.in);
 
@@ -44,6 +46,7 @@ public class App {
             System.out.println("4. Check calendar's events");
             System.out.println("5. Create and send event");
             System.out.println("6. Get contacts");
+            System.out.println("7. Create contact");
 
             try {
                 choice = input.nextInt();
@@ -74,6 +77,9 @@ public class App {
                     break;
                 case 6:
                     getContacts();
+                    break;
+                case 7:
+                    createContact();
                     break;
                 default:
                     System.out.println("Invalid choice");
@@ -179,7 +185,9 @@ public class App {
         String timeZone = "Pacific Standard Time";
         String locationDisplayName = "Location display name goes here";
         List<String> attendeeEmailAddresses = new ArrayList<>();
-        attendeeEmailAddresses.add(oAuthProperties.getProperty("app.email"));
+//        attendeeEmailAddresses.add(oAuthProperties.getProperty("app.email"));
+//        attendeeEmailAddresses.add("ricardo.parada@gsiportugal.com");
+        attendeeEmailAddresses.add("ricardoparada@live.com.pt");
 
         try{
             Graph.createEvent(subject, body, startDateTime, endDateTime, timeZone, locationDisplayName, attendeeEmailAddresses);
@@ -200,10 +208,27 @@ public class App {
 
     private static void getContacts() {
         try {
-            List<ContactCollectionPage> contacts = Graph.getContacts();
-            System.out.println("Contacts: " + contacts);
+            Graph.getContacts();
         } catch (Exception e) {
-            System.out.println("Error getting contacts");
+            System.out.println("Error making Graph call");
+            System.out.println(e.getMessage());
+        }
+    }
+
+    private static void createContact() {
+            Scanner scan = new Scanner(System.in);
+            System.out.print("E-mail: ");
+            final String givenName = scan.nextLine();
+
+            System.out.print("Subject: ");
+            final String surName = scan.nextLine();
+
+            System.out.print("Body: ");
+            final String email = scan.nextLine();
+        try {
+            Graph.createContact(givenName, surName, email);
+        } catch (Exception e) {
+            System.out.println("Error making Graph call");
             System.out.println(e.getMessage());
         }
     }
