@@ -245,6 +245,9 @@ public class App {
             System.out.print("Contact ID: ");
             final String contactId = scan.nextLine();
 
+            System.out.print("Display name: ");
+            final String displayName = scan.nextLine();
+
             System.out.print("Name: ");
             final String givenName = scan.nextLine();
 
@@ -254,7 +257,7 @@ public class App {
             System.out.print("E-mail: ");
             final String email = scan.nextLine();
         try {
-            Graph.updateContact(contactId, givenName, surName, email);
+            Graph.updateContact(contactId, displayName, givenName, surName, email);
         } catch (Exception e) {
             System.out.println("Error making Graph call");
             System.out.println(e.getMessage());
@@ -262,8 +265,11 @@ public class App {
     }
 
     private static void deleteContact() {
+        Scanner scan = new Scanner(System.in);
+        System.out.print("Contact ID: ");
+        final String contactId = scan.nextLine();
         try {
-            Graph.deleteContact("AAMkADkwNDBiNzFmLTY1YjgtNGIyMC05YzUxLTIyYjRjYThjNDg3YwBGAAAAAAAthmT8UPPsRazGiqVWt7b0BwBFVRDfo2MVQpKB6nkDFQxEAAAAAAEOAABFVRDfo2MVQpKB6nkDFQxEAAAVo0zgAAA=");
+            Graph.deleteContact(contactId);
         } catch (Exception e) {
             System.out.println("Error making Graph call");
             System.out.println(e.getMessage());

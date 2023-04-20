@@ -191,22 +191,6 @@ public class Graph {
         }
     }
 
-//    public static List<ContactCollectionPage> getContacts() {
-//        // Get an instance of TokenCredential using DefaultAzureCredential
-//        TokenCredential tokenCredential = new DefaultAzureCredentialBuilder().build();
-//
-//        TokenCredentialAuthProvider authProvider = new TokenCredentialAuthProvider(tokenCredential);
-//        GraphServiceClient<Request> graphClient = GraphServiceClient.builder()
-//                .authenticationProvider(authProvider)
-//                .buildClient();
-//
-//        ContactCollectionPage contacts = graphClient.me().contacts()
-//                .buildRequest()
-//                .get();
-//
-//        return Collections.singletonList(contacts);
-//    }
-
     public static void getContacts() {
         List<Contact> contacts = Objects.requireNonNull(
                         _userClient.me().contacts()
@@ -253,11 +237,12 @@ public class Graph {
         }
     }
 
-    public static void updateContact(String contactId, String givenName, String surName, String email) {
+    public static void updateContact(String contactId, String displayName, String givenName, String surName, String email) {
         try {
             Contact existingContact = _userClient.me().contacts(contactId).buildRequest().get();
             assert existingContact != null;
             existingContact.givenName = givenName;
+            existingContact.displayName = displayName;
             existingContact.surname = surName;
             assert existingContact.emailAddresses != null;
             existingContact.emailAddresses.get(0).address = email;
